@@ -8,7 +8,6 @@ body {
   padding: 1rem;
   font-family: Lato;
   background: white;
-  min-width: 500px;
 }
 
 #wrapper {
@@ -402,6 +401,18 @@ input[type="radio"]:checked::after {
 
   #tabsContainer .tab {
     font-size: 1rem;
+  }
+
+  #wrapper {
+    margin: 0.75rem;
+  }
+
+  #menu .container .title__type {
+    width: 60px;
+  }
+
+  .option {
+    min-width: 80px;
   }
 }
 
