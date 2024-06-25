@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LOEM Questionnaire</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <div id="wrapper">
+      <div id="tabsContainer">
+        <input type="radio" id="PESS" data-bind="value: labels.P_ESS, checked: tabSelected, attr: { name: 'tabs' }">
+        <label class="tab" for="PESS" data-bind="text: labels.P_ESS"></label>
+        <input type="radio" id="RESS" data-bind="value: labels.R_ESS, checked: tabSelected, attr: { name: 'tabs' }">
+        <label class="tab" for="RESS" data-bind="text: labels.R_ESS"></label>
+        <span class="glider"></span>
+      </div>
+      <div id="menu">
+        <div class="legend">
+          <p>Click on the options below to display their corresponding questionnaire</p>
+          <button data-bind="click: init">
+            <span class="filled">Clear all</span>
+          </button>
+        </div>
+        <div class="container">
+          <div class="grid-container" data-bind="foreach: screens">
+            <div class="title grid-item">
+              <div class="left">
+                <button data-bind="click: $parent.showScreen.bind($data, title)">
+                  <span class="filled"
+                    data-bind="text: title, css: { selected: $parent.currentScreen() === title }"></span>
+                </button>
+              </div>
+              <div class="right">
+                <span class="square" data-bind="text: selectedValues().join(',')"></span>
+              </div>
+            </div>
+          </div>
+          <div class="title__type">
+            <div class="head">
+              <p>Type</p>
+            </div>
+            <div class="result">
+              <span data-bind="text: type()"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="overflow">
+        <div class="inner" data-bind="css: currentScreen">
+          <!-- ko foreach: questions -->
+          <div class="screen">
+            <div class="screenQuestions">
+              <div class="questionContainer">
+                <div class="questionHeader">
+                  <div class="title">
+                    <span class="filled" data-bind="text: letter"></span>
+                    <p data-bind="text: label"></p>
+                  </div>
+                  <!-- ko if: isMultiple -->
+                  <div class="option">
+                    <label>YES</label>
+                    <label>NO</label>
+                  </div>
+                  <!-- /ko -->
+                </div>
+                <div data-bind="foreach: options" class="mainQuestion">
+                  <div class="singleQuestion" data-bind="css: { disabled: !enabled() }">
+                    <div class="labelQuestion">
+                      <span class="letter" data-bind="text: $parent.letter"></span>
+                      <span class="subscript" data-bind="text: subscript"></span>
+                      <span class="description" data-bind="text:': '+label()"></span>
+                    </div>
+                    <!-- ko if: $parent.isMultiple -->
+                    <div class="option">
+                      <label>
+                        <input type="radio" value="true"
+                          data-bind="attr: {name: $parent.letter+subscript}, checked: answer, checkedValue: true, enable: enabled">
+                      </label>
+                      <label>
+                        <input type="radio" value="false"
+                          data-bind="attr: {name: $parent.letter+subscript}, checked: answer, checkedValue: false, enable: enabled">
+                      </label>
+                    </div>
+                    <!-- /ko -->
+                    <!-- ko ifnot: $parent.isMultiple -->
+                    <div class="option">
+                      <label>
+                        <input type="radio"
+                          data-bind="value: $parent.letter+subscript, checked: $parent.selectedValue, attr: { name: 'optionGroup' + $parent.letter }">
+                      </label>
+                    </div>
+                    <!-- /ko -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- /ko -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="questions.js"></script>
+  <script>
+    function calculateType({ nL, nO, nE, M }) {
+      let TYPE = '---';
+      //type I: 1L or 1O
+      //type II: 2L + 2O and/or 1E + Mf
+      //type III: 3L + 3O + 2E + Mr
+      //type IV: 3L + 3O + 2E + Mn
+
+      //Type III or IV (shares multichoice condition)
+      if (['Mr', 'Mm'].includes(M)) {
+        //check at least 3L + (3O or 2E)
+        const multipleChoiceCondition = ((nL >= 3) && nO >= 3 && nE >= 2);
+        if (M === 'Mm' && multipleChoiceCondition) return 'IV';
+        if (M === 'Mr' && multipleChoiceCondition) return 'III';
+      }
+
+      //Type II
+      if (M === 'Mf') {
+        //check at least 2L + 2O and/or 1E + Mf
+        const multipleChoiceCondition = ((nL >= 2) && (nO >= 2 || nE >= 1))
+        if (multipleChoiceCondition) return 'II';
+      }
+
+      //Type I
+      if (['M0', 'Mf'].includes(M)) {
+        //check at least 1L or 1O
+        const multipleChoiceCondition = ((nL >= 1) || (nO >= 1))
+        if (multipleChoiceCondition) return 'I';
+      }
+
+      return TYPE;
+    }
+
+    function getMarkedOptions(viewModel, letter) {
+      const findLetter = viewModel.questions().find(q => q.letter === letter) || [];
+      const selected = findLetter.options().filter(o => o.answer() === true);
+      return selected;
+    }
+
+    function getQuestions(tab) {
+      if (tab === labels.P_ESS) {
+        return [...commonQuestions];
+      }
+      
+      return commonQuestions.map(q => {
+        const revOptions = revisionQuestions.find(r => r.letter === q.letter)?.options || [];
+        return ({ ...q, options: [ ...q.options, ...revOptions]})
+      });
+  }
+
+    function Screen(screen) {
+      this.id = screen.id;
+      this.title = screen.title;
+      this.selectedValues = ko.observableArray([screen.id]);
+    }
+
+    function ViewModel() {
+      const self = this;
+
+      self.questions = ko.observableArray([]);
+      self.screens = ko.observableArray([]);
+      self.type = ko.observable('---');
+      self.currentScreen = ko.observable('Lamella');
+      self.tabSelected = ko.observable(labels.P_ESS);
+
+      function Question(question) {
+        this.letter = question.letter;
+        this.label = question.isMultiple ? labels.isMultiple : labels.noMultiple;
+        this.isMultiple = question.isMultiple;
+        this.options = ko.observableArray([]);
+        this.selectedValue = ko.observable()
+
+        question.options.forEach(option => {
+          this.options.push(new Option(this.letter, option.subscript, option.label));
+        });
+
+        this.selectedValue.subscribe(newValue => {
+          self.process();
+        })
+      }
+
+      function Option(letter, subscript, label) {
+        const selfOption = this;
+        this.letter = letter;
+        this.subscript = subscript;
+        this.label = ko.observable(label);
+        this.answer = ko.observable(false);
+        this.enabled = ko.observable(true);
+
+        this.answer.subscribe(newValue => {
+          self.manageExcluding(selfOption.letter, selfOption.subscript, newValue);
+          self.process();
+        });
+      }
+
+      self.manageExcluding = (letter, subscript, checked) => {
+        const _question = self.questions().find(q => q.letter === letter);
+        if (_question) {
+          let _option;
+          if (letter !== 'E') {
+            _option = _question.options().find(o => o.subscript[0] === subscript[0] && o.subscript !== subscript);
+          }
+          else {
+            _option = _question.options().find(o => o.subscript.at(-1) === subscript.at(-1) && o.subscript !== subscript);
+          }
+          
+          _option?.enabled(!checked);
+        }
+      }
+
+      self.init = () => {
+        self.questions([]);
+        self.screens([]);
+        self.type('---');
+        self.currentScreen('Lamella');
+
+        const questions = getQuestions(self.tabSelected() || labels.P_ESS);
+
+        questions.forEach(question => {
+          self.questions.push(new Question(question));
+        })
+
+        screens.forEach(screen => {
+          self.screens.push(new Screen(screen));
+        })
+      }
+
+      self.showScreen = function (screenName) {
+        self.currentScreen(screenName);
+      };
+
+      self.updateScreen = (screen, values) => {
+        const selected = self.screens().find(s => s.id === screen);
+        if (values.length > 0) {
+          const valuesMap = values.map(x => screen + x.subscript);
+          selected.selectedValues(valuesMap)
+        }
+        else {
+          selected.selectedValues([screen])
+        }
+      }
+
+      self.process = function () {
+        //L
+        let arrayL = getMarkedOptions(self, 'L');
+        self.updateScreen('L', arrayL);
+        //O
+        let arrayO = getMarkedOptions(self, 'O');
+        self.updateScreen('O', arrayO);
+        //E
+        let arrayE = getMarkedOptions(self, 'E');
+        self.updateScreen('E', arrayE);
+        //M
+        const M = self.questions().find(q => q.letter === 'M')?.selectedValue();
+        if (M) {
+          const selected = self.screens().find(s => s.id === 'M')?.selectedValues([M]);
+        }
+
+        //remove 0s
+        arrayL = arrayL.filter(l => l.subscript !== '0');
+        arrayO = arrayO.filter(l => l.subscript !== '0');
+        arrayE = arrayE.filter(l => l.subscript !== '0');
+
+        const TYPE = calculateType({ nL: arrayL.length, nO: arrayO.length, nE: arrayE.length, M })
+        self.type(TYPE)
+      }
+
+      self.tabSelected.subscribe(newValue => {
+        self.init();
+      })
+
+      self.init();
+    }
+
+    ko.applyBindings(new ViewModel());
+  </script>
+
+</body>
+
+</html>

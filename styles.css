@@ -1,0 +1,405 @@
+:root {
+  --green: #00863e;
+  --light-green: rgb(102, 173, 77);
+  --border-bottom: rgba(102, 173, 77, 0.2);
+}
+
+body {
+  padding: 1rem;
+  font-family: Lato;
+  background: white;
+  min-width: 500px;
+}
+
+#wrapper {
+  margin: 1.5rem;
+  border-radius: 25px 25px 0px 0px;
+  border: 2px solid var(--green);
+  overflow: hidden;
+}
+/** TABS */
+#tabsContainer {
+  display: flex;
+  position: relative;
+  background-color: #fff;
+  margin: 0.75rem;
+  border-radius: 99px;
+}
+
+#tabsContainer * {
+  z-index: 2;
+}
+
+#tabsContainer input[type="radio"] {
+  display: none;
+}
+
+#tabsContainer input[type="radio"]:checked + label {
+  color: white;
+}
+
+#tabsContainer input[id="PESS"]:checked ~.glider { 
+  transform: translateX(0);
+}
+
+#tabsContainer input[id="RESS"]:checked ~.glider { 
+  transform: translateX(100%);
+}
+
+#tabsContainer .tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 54px;
+  width: 200px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: color 0.15s ease-in;
+  flex: 1;
+}
+
+#tabsContainer .glider {
+  position: absolute;
+  display: flex;
+  height: 54px;
+  width: 50%;
+  background-color: var(--green);
+  z-index: 1;
+  border-radius: 99px;
+  transition: 0.25s ease-out;
+}
+/** END TABS */
+
+.mainQuestion {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  background-color: white;
+  border-top: 2px solid var(--light-green);
+}
+
+.singleQuestion {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-bottom);
+}
+
+.singleQuestion.disabled {
+  opacity: 0.3;
+}
+
+.singleQuestion.disabled input[type="radio"]{
+  cursor: default;
+}
+
+.labelQuestion {
+  flex: 1;
+  margin-bottom: 0.5rem;
+}
+
+.labelQuestion span.letter {
+  position: relative;
+}
+
+.labelQuestion span.subscript {
+  position: relative;
+  bottom: 2px;
+  left: -3px;
+  font-size: 0.7rem;
+  vertical-align: sub;
+}
+
+.labelQuestion span.description {
+  margin: -4px;
+}
+
+.option {
+  min-width: 100px;
+  display: inline-flex;
+  margin-left: 1.5rem;
+}
+
+.option label {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+
+.option label input[type="radio"] {
+  width: 30px;
+  height: 30px;
+}
+
+.questionContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.questionContainer p {
+  margin: 0;
+}
+
+.questionHeader {
+  display: flex;
+  justify-content: space-between;
+}
+
+.questionHeader .option {
+  padding: 0.75rem;
+  background-color: var(--light-green);
+  color: white;
+  border-radius: 10px 10px 0px 0px;
+}
+
+span.filled {
+  background: var(--light-green);
+  margin-right: 2rem;
+  height: 1rem;
+  color: white;
+  text-align: center;
+  line-height: 1rem;
+  display: flex;
+  padding: 0.25rem 1.5rem;
+  font-weight: 700;
+  justify-content: center;
+  align-items: center;
+}
+
+span.filled.selected {
+  background: var(--green) !important;
+}
+
+span.square {
+  border: 1px solid var(--green);
+  width: 100%;
+  display: block;
+  padding: 0.25rem;
+}
+
+.title {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 0;
+}
+
+.title p {
+  margin: 0;
+  font-weight: bold;
+}
+
+.title button {
+  border: 0;
+  padding: 0;
+  width: 100%;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.title button span {
+  margin: 0;
+  cursor: pointer;
+}
+
+#menu {
+  padding: 1.5rem;
+}
+
+#menu .container {
+  border: 2px solid var(--light-green);
+  display: flex;
+  flex-direction: row;
+  background-color: white;
+}
+
+#menu .container .title {
+  padding: 1rem;
+  display: inline-flex;
+  gap: 1rem;
+}
+
+#menu .container .title div {
+  flex: 1;
+}
+
+#menu .container .title div.left {
+  border-radius: 4px;
+}
+
+#menu .container .title div.right {
+  text-align: center;
+}
+
+#menu .container .title__type {
+  background-color: var(--green);
+  color: white;
+  width: 100px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 22px;
+}
+
+#menu .legend {
+  padding: 0 1rem;
+  background-color: var(--light-green);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+}
+
+#menu .legend button {
+  width: 150px;
+  border: 0;
+  padding: 0.5rem;
+  background-color: transparent;
+}
+
+#menu .legend button span.filled {
+  color: var(--light-green);
+  background-color: white;
+  border-radius: 0.5rem;
+  margin: 0;
+  padding: 0.25rem;
+  cursor: pointer;
+}
+
+/** INIT: PARTE PARA LAS ANIMACIONES DE LOS SLIDERS */
+#overflow {
+  width: 100%;
+  overflow: hidden;
+  overflow-y: auto;
+  flex: 1;
+}
+
+#app .inner {
+  transition: margin-left 800ms cubic-bezier(0.770, 0.000, 0.175, 1.000);
+  width: 400%;
+  line-height: 0;
+}
+
+#app .inner.Lamella {
+  margin-left: 0;
+}
+
+#app .inner.Ostium {
+  margin-left: -100%;
+}
+
+#app .inner.Extent {
+  margin-left: -200%;
+}
+
+#app .inner.Mucosa {
+  margin-left: -300%;
+}
+
+#app .screen {
+  width: 25%;
+  float: left;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.5s;
+}
+
+#app .screen .screenQuestions {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  line-height: normal;
+  flex: 1;
+}
+
+html,
+body,
+#app {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/** END: PARTE PARA LAS ANIMACIONES DE LOS SLIDERS */
+
+/** INIT CUSTOM RADIOBUTTON */
+input[type="radio"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--light-green);
+  outline: none;
+  cursor: pointer;
+}
+
+/* Estilo para el radio button cuando está seleccionado */
+input[type="radio"]:checked {
+  background-color: transparent;
+  border: 2px solid var(--light-green);
+}
+
+/* Estilo para el radio button cuando está seleccionado */
+input[type="radio"]:checked::after {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--light-green);
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  /* Inicia pequeño */
+  animation: grow 0.3s ease forwards;
+  /* Animación de crecimiento */
+}
+
+/* Animación de crecimiento */
+@keyframes grow {
+  from {
+    transform: translate(-50%, -50%) scale(0);
+    /* Inicia pequeño */
+  }
+
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    /* Termina grande */
+  }
+}
+
+/** END CUSTOM RADIOBUTTON */
+
+/* Contenedor del grid */
+.grid-container {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(2, 1fr);
+  /* Dos columnas */
+}
+
+/* Elementos del grid */
+.grid-item {
+  padding: 20px;
+}
+
+/* Media query para cambiar a 1x4 cuando el ancho de la ventana es menor a 600px */
+@media screen and (max-width: 640px) {
+  .grid-container {
+    grid-template-columns: repeat(1, 1fr);
+    /* Una sola columna */
+  }
+}
+
+/* keyframes animation */
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
